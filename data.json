@@ -1,0 +1,66 @@
+{
+  "about": "G-electra Club is focused on promoting innovation in technology and organizing events such as workshops, hackathons, and tech talks. Our mission is to foster a collaborative environment where students can develop skills in software development, hardware engineering, marketing, design, and content creation.",
+
+  "members": {
+    "President": "Gowri",
+    "VicePresident": "venu",
+    "Secretary": "aditya",
+    
+
+   
+    "SoftwareLead": "Raghava",
+    "SoftwareCoLead": "Josthna",
+
+    
+    "HardwareLead": "nischal aditya",
+    "HardwareCoLead": "pranav",
+
+   
+    "CreativeLead": "Karthik Pagidi",
+    "CreativeCoLead": "P. Sravya",
+
+    
+    "ContentLead": "G. Showry James",
+    "ContentCoLead": "harshitha",
+
+   
+    "MarketingLead": "",
+    "MarketingCoLead": "rohith",
+
+   
+    "WebLead": "manish reddy "
+  },
+
+  "events": {
+    "past": [
+      {
+        "name": "Havana",
+        "date": "15th July 2023",
+        "description": "Havana is the biggest event ever organized by G-electra Club. It was a celebration of technology, creativity, and innovation."
+      },
+      {
+        "name": "Tech Talk on AI",
+        "date": "12th Sept 2023"
+      },
+      {
+        "name": "Hackathon 2023",
+        "date": "18th Aug 2023"
+      }
+    ],
+    "upcoming": [
+      {
+        "name": "CodeFest 2024",
+        "date": "10th Jan 2024"
+      }
+    ]
+  },
+
+  "categories": [
+    "Software Wing",
+    "Hardware Wing",
+    "Marketing Team",
+    "Content Team",
+    "Creative Design Team",
+    "Event Management Team"
+  ]
+}

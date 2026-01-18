@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>G-electra Club Chatbot</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head> 
+
+<body>
+  <!-- soft glows behind everything -->
+  <div class="bg-orbit bg-orbit-1"></div>
+  <div class="bg-orbit bg-orbit-2"></div>
+
+  <div class="main-container">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="logo-wrapper">
+        <div class="logo-circle">
+          <!-- G-electra logo (clickable) -->
+          <a href="https://gelectra.tech/" target="_blank">
+            <img
+              src="logo.png"
+              alt="G-electra Logo"
+              class="club-logo"
+              title="Click to explore the G-electra website"
+              style="cursor: pointer;"
+            />
+          </a>
+        </div>
+        <div class="logo-glow"></div>
+      </div>
+      <h1 class="title">G-electra Club Chatbot</h1>
+      <p class="subtitle">Ask anything about the club below!</p>
+    </header>
+
+    <!-- SUGGESTIONS -->
+    <section class="card suggestions-box">
+      <h3>Try questions like:</h3>
+      <ul>
+        <li>What is the club about?</li>
+        <li>Who is the president?</li>
+        <li>Who are the club members?</li>
+        <li>Tell me about Havana event.</li>
+        <li>What are the categories in the club?</li>
+      </ul>
+    </section>
+
+    <!-- CHAT AREA -->
+    <section class="card chat-shell">
+      <div class="chat-log">
+        <div class="chat-message bot">
+          <div class="avatar-bot"><span>E</span></div>
+          <div class="bubble">
+            <p class="bubble-label">Electra</p>
+            <p id="responseOutput" class="bubble-text">Waiting for input...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-row">
+        <input
+          id="questionInput"
+          type="text"
+          placeholder="Type your question here..."
+        />
+        <button class="ask-btn" onclick="askQuestion()">
+          <i data-lucide="message-circle"></i>
+          <span>Ask</span>
+        </button>
+        <button class="voice-btn" id="voiceBtn">
+          <i data-lucide="mic"></i>
+          <span>Voice</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= JARVIS VOICE OVERLAY ================= -->
+  <div id="voiceOverlay" class="voice-overlay listening">
+    <div class="jarvis-wrapper">
+      <div class="jarvis-core">
+
+        <!-- multiple animated rings -->
+        <div class="jarvis-ring ring-outer"></div>
+        <div class="jarvis-ring ring-mid"></div>
+        <div class="jarvis-ring ring-inner"></div>
+        <div class="jarvis-ring ring-center"></div>
+
+        <!-- scanning arcs -->
+        <div class="jarvis-arc arc-1"></div>
+        <div class="jarvis-arc arc-2"></div>
+
+        <!-- orbiting dots -->
+        <div class="jarvis-orbit orbit-1">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="jarvis-orbit orbit-2">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+
+        <!-- center label -->
+        <div class="jarvis-center">
+          <span class="center-top">ELECTRA</span>
+          <span class="center-bottom">BOT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- status text -->
+    <p class="voice-text">Listening...</p>
+    <p class="voice-subtext">Ask anything about the G-electra Club.</p>
+
+    <button class="stop-btn" onclick="stopVoiceMode()">
+      <i data-lucide="x-circle"></i>
+      <span>Stop</span>
+    </button>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -156,42 +156,17 @@ function answerFromData(question) {
 }
 
 /* -----------------------------------------------------------
-   OLLAMA (WITH FALLBACK)
+   SIMPLE AI FALLBACK (NO OLLAMA)
 ----------------------------------------------------------- */
 async function askOllama(question) {
 
   const relevantInfo = searchClubData(question);
 
-  const prompt = `
-You are ElectraBot, the AI assistant for the G-Electra Smart Systems Club.
-
-Use the information below to answer the user's question.
-
-Relevant Club Information:
-${relevantInfo}
-
-Question:
-${question}
-
-Answer clearly and conversationally.
-`;
-
-  try {
-
-    const res = await axios.post("http://localhost:11434/api/generate", {
-      model: "mistral",
-      prompt: prompt,
-      stream: false
-    });
-
-    return res.data.response;
-
-  } catch (err) {
-
-    console.log("⚠️ Ollama not available, using club data.");
-
-    return relevantInfo || "I can answer questions related to G-Electra Club.";
+  if (relevantInfo) {
+    return relevantInfo;
   }
+
+  return "I can answer only about G-electra Club information.";
 }
 
 /* -----------------------------------------------------------

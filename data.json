@@ -4,7 +4,8 @@
   "members": {
     "President": "Gowri",
     "VicePresident": "venu",
-    "Secretary": "aditya",
+    "Secretary": "aditya and Sravya",
+
     
 
    
@@ -24,7 +25,7 @@
     "ContentCoLead": "harshitha",
 
    
-    "MarketingLead": "",
+    "MarketingLead": "varshith",
     "MarketingCoLead": "rohith",
 
    
@@ -35,7 +36,7 @@
     "past": [
       {
         "name": "Havana",
-        "date": "15th July 2023",
+        "date": "24th March 2026",
         "description": "Havana is the biggest event ever organized by G-electra Club. It was a celebration of technology, creativity, and innovation."
       },
       {
@@ -49,8 +50,9 @@
     ],
     "upcoming": [
       {
-        "name": "CodeFest 2024",
-        "date": "10th Jan 2024"
+        "name": "HAVANA 2026",
+        "date": "24TH AND 25TH MARCH 2026",
+        "description": "Havana is the biggest event ever organized by G-electra Club. It is a celebration of technology, creativity, and innovation. The event will feature workshops, hackathons, tech talks, and exhibitions showcasing the latest advancements in technology."
       }
     ]
   },

@@ -76,8 +76,8 @@ function answerFromData(question) {
   if (q.includes("vice") && q.includes("president"))
     return lead(clubData.members.VicePresident, "The Vice President of G-electra Club");
 
-  if (q.includes("secretary"))
-    return `The Secretaries are ${clubData.members.Secretary}.`;
+  if (q.includes("secretary ") && !q.includes("joint")) 
+    return `The Secretaries are ${clubData.members.Secretary} and ${clubData.members.JointSecretary}.`;
 
   if (q.includes("treasurer"))
     return lead(clubData.members.Treasurer, "The Treasurer of G-electra Club");

@@ -3,6 +3,7 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
+const { pipeline } = require("@xenova/transformers");
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,71 @@ app.use(express.static(__dirname));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
+
+/* -----------------------------------------------------------
+   LOAD EMBEDDING MODEL
+----------------------------------------------------------- */
+let embedder = null;
+
+async function loadModel() {
+  if (!embedder) {
+    embedder = await pipeline(
+      "feature-extraction",
+      "Xenova/all-MiniLM-L6-v2"
+    );
+  }
+  return embedder;
+}
+
+/* -----------------------------------------------------------
+   COSINE SIMILARITY
+----------------------------------------------------------- */
+function cosineSimilarity(a, b) {
+  let dot = 0;
+  let normA = 0;
+  let normB = 0;
+
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    normA += a[i] * a[i];
+    normB += b[i] * b[i];
+  }
+
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+/* -----------------------------------------------------------
+   🔍 SEMANTIC SEARCH (VECTOR RAG)
+----------------------------------------------------------- */
+async function searchClubData(question) {
+
+  const model = await loadModel();
+
+  const dataTexts = Object.entries(clubData).map(
+    ([key, value]) => `${key}: ${JSON.stringify(value)}`
+  );
+
+  const questionEmbedding = await model(question);
+  const questionVector = questionEmbedding.data;
+
+  let bestScore = -1;
+  let bestText = "";
+
+  for (const text of dataTexts) {
+
+    const emb = await model(text);
+    const vec = emb.data;
+
+    const score = cosineSimilarity(questionVector, vec);
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestText = text;
+    }
+  }
+
+  return bestText;
+}
 
 /* -----------------------------------------------------------
    NORMALIZER (STT ROBUST)
@@ -58,7 +124,7 @@ function coLead(name, label) {
 }
 
 /* -----------------------------------------------------------
-   MAIN ANSWER LOGIC (UNCHANGED)
+   MAIN ANSWER LOGIC
 ----------------------------------------------------------- */
 function answerFromData(question) {
   const q = normalize(question);
@@ -135,22 +201,42 @@ function answerFromData(question) {
 }
 
 /* -----------------------------------------------------------
-   OLLAMA (SEARCH ONLY)
+   OLLAMA (NOW USING VECTOR RAG)
 ----------------------------------------------------------- */
 async function askOllama(question) {
+
+  const relevantInfo = await searchClubData(question);
+
+  const prompt = `
+You are ElectraBot, the AI assistant for the G-Electra Smart Systems Club.
+
+Use the information below to answer the user's question.
+
+Relevant Club Information:
+${relevantInfo}
+
+Question:
+${question}
+
+Answer clearly and conversationally.
+`;
+
   const res = await axios.post("http://localhost:11434/api/generate", {
     model: "mistral",
-    prompt: `You are Electra Bot. Answer clearly:\n${question}`,
+    prompt: prompt,
     stream: false
   });
+
   return res.data.response;
 }
 
 /* -----------------------------------------------------------
-   CHAT API (TEXT SEARCH)
+   CHAT API
 ----------------------------------------------------------- */
 app.post("/chat", async (req, res) => {
+
   const question = (req.body.question || "").trim();
+
   if (!question) {
     return res.json({ answer: "Ask a question about G-electra Club." });
   }
@@ -174,19 +260,24 @@ app.post("/chat", async (req, res) => {
   }
 
   const localAnswer = answerFromData(question);
+
   if (localAnswer !== null) {
     return res.json({ answer: localAnswer });
   }
 
   const aiAnswer = await askOllama(question);
+
   res.json({ answer: aiAnswer });
+
 });
 
 /* -----------------------------------------------------------
-   VOICE API – JSON ONLY, NO OLLAMA
+   VOICE API
 ----------------------------------------------------------- */
 app.post("/voice", (req, res) => {
+
   const question = (req.body.question || "").trim();
+
   if (!question) {
     return res.json({ answer: "Please ask again." });
   }
@@ -200,6 +291,7 @@ app.post("/voice", (req, res) => {
   return res.json({
     answer: "I can answer only about G-electra Club information."
   });
+
 });
 
 /* -----------------------------------------------------------

@@ -3,7 +3,6 @@ const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
-const { pipeline } = require("@xenova/transformers");
 
 const app = express();
 app.use(express.json());
@@ -24,68 +23,24 @@ app.get("/", (req, res) => {
 });
 
 /* -----------------------------------------------------------
-   LOAD EMBEDDING MODEL
+   SIMPLE RAG SEARCH
 ----------------------------------------------------------- */
-let embedder = null;
+function searchClubData(question) {
 
-async function loadModel() {
-  if (!embedder) {
-    embedder = await pipeline(
-      "feature-extraction",
-      "Xenova/all-MiniLM-L6-v2"
-    );
-  }
-  return embedder;
-}
+  const q = question.toLowerCase();
+  let results = [];
 
-/* -----------------------------------------------------------
-   COSINE SIMILARITY
------------------------------------------------------------ */
-function cosineSimilarity(a, b) {
-  let dot = 0;
-  let normA = 0;
-  let normB = 0;
+  for (const key in clubData) {
 
-  for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    normA += a[i] * a[i];
-    normB += b[i] * b[i];
-  }
+    const value = JSON.stringify(clubData[key]).toLowerCase();
 
-  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-}
-
-/* -----------------------------------------------------------
-   🔍 SEMANTIC SEARCH (VECTOR RAG)
------------------------------------------------------------ */
-async function searchClubData(question) {
-
-  const model = await loadModel();
-
-  const dataTexts = Object.entries(clubData).map(
-    ([key, value]) => `${key}: ${JSON.stringify(value)}`
-  );
-
-  const questionEmbedding = await model(question);
-  const questionVector = questionEmbedding.data;
-
-  let bestScore = -1;
-  let bestText = "";
-
-  for (const text of dataTexts) {
-
-    const emb = await model(text);
-    const vec = emb.data;
-
-    const score = cosineSimilarity(questionVector, vec);
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestText = text;
+    if (value.includes(q)) {
+      results.push(`${key}: ${JSON.stringify(clubData[key])}`);
     }
+
   }
 
-  return bestText;
+  return results.slice(0,3).join("\n");
 }
 
 /* -----------------------------------------------------------
@@ -201,11 +156,11 @@ function answerFromData(question) {
 }
 
 /* -----------------------------------------------------------
-   OLLAMA (NOW USING VECTOR RAG)
+   OLLAMA (WITH SIMPLE RAG)
 ----------------------------------------------------------- */
 async function askOllama(question) {
 
-  const relevantInfo = await searchClubData(question);
+  const relevantInfo = searchClubData(question);
 
   const prompt = `
 You are ElectraBot, the AI assistant for the G-Electra Smart Systems Club.

@@ -44,6 +44,74 @@ function searchClubData(question) {
 }
 
 /* -----------------------------------------------------------
+   INTELLIGENT JSON SEARCH
+----------------------------------------------------------- */
+function intelligentSearch(question) {
+
+  const q = question.toLowerCase();
+  let answers = [];
+
+  if (q.includes("g electra") || q.includes("about club")) {
+    answers.push(clubData.about);
+  }
+
+  if (q.includes("lead")) {
+
+    if (clubData.members.SoftwareLead)
+      answers.push(`Software Lead: ${clubData.members.SoftwareLead}`);
+
+    if (clubData.members.HardwareLead)
+      answers.push(`Hardware Lead: ${clubData.members.HardwareLead}`);
+
+    if (clubData.members.MarketingLead)
+      answers.push(`Marketing Lead: ${clubData.members.MarketingLead}`);
+
+    if (clubData.members.ContentLead)
+      answers.push(`Content Lead: ${clubData.members.ContentLead}`);
+
+    if (clubData.members.CreativeLead)
+      answers.push(`Creative Lead: ${clubData.members.CreativeLead}`);
+  }
+
+  if (q.includes("colead") || q.includes("co lead")) {
+
+    if (clubData.members.SoftwareCoLead)
+      answers.push(`Software Co-Lead: ${clubData.members.SoftwareCoLead}`);
+
+    if (clubData.members.HardwareCoLead)
+      answers.push(`Hardware Co-Lead: ${clubData.members.HardwareCoLead}`);
+
+    if (clubData.members.MarketingCoLead)
+      answers.push(`Marketing Co-Lead: ${clubData.members.MarketingCoLead}`);
+
+    if (clubData.members.ContentCoLead)
+      answers.push(`Content Co-Lead: ${clubData.members.ContentCoLead}`);
+
+    if (clubData.members.CreativeCoLead)
+      answers.push(`Creative Co-Lead: ${clubData.members.CreativeCoLead}`);
+  }
+
+  if (q.includes("team") || q.includes("categories") || q.includes("wings")) {
+    answers.push(`The teams in G-Electra are: ${clubData.categories.join(", ")}`);
+  }
+
+  if (q.includes("event")) {
+
+    const past = clubData.events.past.map(e => `${e.name} (${e.date})`);
+    const upcoming = clubData.events.upcoming.map(e => `${e.name} (${e.date})`);
+
+    answers.push(`Past Events: ${past.join(", ")}`);
+    answers.push(`Upcoming Events: ${upcoming.join(", ")}`);
+  }
+
+  if (answers.length > 0) {
+    return answers.join("\n");
+  }
+
+  return null;
+}
+
+/* -----------------------------------------------------------
    NORMALIZER (STT ROBUST)
 ----------------------------------------------------------- */
 function normalize(q) {
@@ -97,66 +165,14 @@ function answerFromData(question) {
   if (q.includes("vice") && q.includes("president"))
     return lead(clubData.members.VicePresident, "The Vice President of G-electra Club");
 
-  if (q.includes("secretary ") && !q.includes("joint")) 
-    return `The Secretaries are ${clubData.members.Secretary} and ${clubData.members.JointSecretary}.`;
-
   if (q.includes("treasurer"))
     return lead(clubData.members.Treasurer, "The Treasurer of G-electra Club");
-
-  if (q.includes("software") && q.includes("colead"))
-    return coLead(clubData.members.SoftwareCoLead, "Software Wing");
-
-  if (q.includes("software") && q.includes("lead"))
-    return lead(clubData.members.SoftwareLead, "The Lead of the Software Wing");
-
-  if (q.includes("hardware") && q.includes("colead"))
-    return coLead(clubData.members.HardwareCoLead, "Hardware Wing");
-
-  if (q.includes("hardware") && q.includes("lead"))
-    return lead(clubData.members.HardwareLead, "The Lead of the Hardware Wing");
-
-  if (q.includes("marketing") && q.includes("colead"))
-    return coLead(clubData.members.MarketingCoLead, "Marketing Team");
-
-  if (q.includes("marketing") && q.includes("lead"))
-    return lead(clubData.members.MarketingLead, "The Lead of the Marketing Team");
-
-  if (q.includes("content") && q.includes("colead"))
-    return coLead(clubData.members.ContentCoLead, "Content Team");
-
-  if (q.includes("content") && q.includes("lead"))
-    return lead(clubData.members.ContentLead, "The Lead of the Content Team");
-
-  if (q.includes("creative") && q.includes("colead"))
-    return coLead(clubData.members.CreativeCoLead, "Creative Design Team");
-
-  if (q.includes("creative") && q.includes("lead"))
-    return lead(clubData.members.CreativeLead, "The Lead of the Creative Design Team");
-
-  if (q.includes("web") || q.includes("developer"))
-    return lead(clubData.members.WebLead, "The Lead of the Web Development Team");
-
-  if (q.includes("categories") || q.includes("teams") || q.includes("wings"))
-    return `The categories in G-electra Club are: ${clubData.categories.join(", ")}.`;
-
-  if (q.includes("havana")) {
-    const hv = clubData.events.past.find(e => e.name.toLowerCase() === "havana");
-    return `Havana (${hv.date}): ${hv.description}`;
-  }
-
-  if (q.includes("upcoming") || q.includes("next event")) {
-    const next = clubData.events.upcoming[0];
-    return `The next event is ${next.name} on ${next.date}.`;
-  }
-
-  if (q.includes("past events"))
-    return clubData.events.past.map(e => `${e.name} (${e.date})`).join(", ");
 
   return null;
 }
 
 /* -----------------------------------------------------------
-   SIMPLE AI FALLBACK (NO OLLAMA)
+   SMART FALLBACK RESPONSE
 ----------------------------------------------------------- */
 async function askOllama(question) {
 
@@ -166,7 +182,7 @@ async function askOllama(question) {
     return relevantInfo;
   }
 
-  return "I can answer only about G-electra Club information.";
+  return "I'm sorry, I couldn't find information about that. But I can help you with details related to the G-Electra Club such as members, teams, leads, and events.";
 }
 
 /* -----------------------------------------------------------
@@ -180,28 +196,16 @@ app.post("/chat", async (req, res) => {
     return res.json({ answer: "Ask a question about G-electra Club." });
   }
 
-  const q = normalize(question);
-
-  if (
-    q.includes("colead") &&
-    !(
-      q.includes("software") ||
-      q.includes("hardware") ||
-      q.includes("content") ||
-      q.includes("creative") ||
-      q.includes("marketing")
-    )
-  ) {
-    return res.json({
-      answer:
-        "Which wing’s co-lead are you asking about? Software, Hardware, Content, Creative, or Marketing."
-    });
-  }
-
   const localAnswer = answerFromData(question);
 
   if (localAnswer !== null) {
     return res.json({ answer: localAnswer });
+  }
+
+  const smartAnswer = intelligentSearch(question);
+
+  if (smartAnswer !== null) {
+    return res.json({ answer: smartAnswer });
   }
 
   const aiAnswer = await askOllama(question);
@@ -227,8 +231,14 @@ app.post("/voice", (req, res) => {
     return res.json({ answer: localAnswer });
   }
 
+  const smartAnswer = intelligentSearch(question);
+
+  if (smartAnswer !== null) {
+    return res.json({ answer: smartAnswer });
+  }
+
   return res.json({
-    answer: "I can answer only about G-electra Club information."
+    answer: "I can help with information about the G-Electra Club such as members, teams, leads, and events."
   });
 
 });

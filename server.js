@@ -156,7 +156,7 @@ function answerFromData(question) {
 }
 
 /* -----------------------------------------------------------
-   OLLAMA (WITH SIMPLE RAG)
+   OLLAMA (WITH FALLBACK)
 ----------------------------------------------------------- */
 async function askOllama(question) {
 
@@ -176,13 +176,22 @@ ${question}
 Answer clearly and conversationally.
 `;
 
-  const res = await axios.post("http://localhost:11434/api/generate", {
-    model: "mistral",
-    prompt: prompt,
-    stream: false
-  });
+  try {
 
-  return res.data.response;
+    const res = await axios.post("http://localhost:11434/api/generate", {
+      model: "mistral",
+      prompt: prompt,
+      stream: false
+    });
+
+    return res.data.response;
+
+  } catch (err) {
+
+    console.log("⚠️ Ollama not available, using club data.");
+
+    return relevantInfo || "I can answer questions related to G-Electra Club.";
+  }
 }
 
 /* -----------------------------------------------------------
